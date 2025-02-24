@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Roles {
+  PROFESSOR
+  STUDENT
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Roles     @default(STUDENT)
+  createdAt DateTime  @default(now())
+  classes   Classes[]
+
+  Ranking    Ranking?     @relation(fields: [rankingId], references: [id])
+  rankingId  String?
+  Avaliation Avaliation[]
+
+  @@map("users")
+}
+
+model Classes {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  User      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@map("classes")
+}
+
+model Avaliation {
+  id      String @id @default(uuid())
+  hate    Float
+  content String
+  users   User   @relation(fields: [userId], references: [id])
+  userId  String
+
+  @@map("avaliation")
+}
+
+model Ranking {
+  id        String   @id @default(uuid())
+  media     Float
+  position  Int
+  user      User[]
+  createdAt DateTime @default(now())
+  updateAt  DateTime @default(now())
+
+  @@map("rankings")
+}
